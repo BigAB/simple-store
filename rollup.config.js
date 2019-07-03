@@ -1,0 +1,62 @@
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
+import babel from 'rollup-plugin-babel';
+import pkg from './package.json';
+
+export default [
+  {
+    input: 'src/index.js',
+    external: ['react'],
+    output: [
+      { file: pkg.module, format: 'es' },
+      { file: pkg.main, format: 'cjs', exports: 'named' },
+    ],
+    plugins: [
+      resolve({
+        mainFields: ['module', 'main', 'browser'],
+        dedupe: ['react'],
+      }),
+      babel({
+        exclude: 'node_modules/**',
+        presets: [
+          [
+            '@babel/preset-env',
+            { targets: { browsers: `last 2 versions, > 5%` } },
+          ],
+          '@babel/preset-react',
+        ],
+      }),
+    ],
+  },
+  // browser-friendly UMD build
+  {
+    input: 'src/index.js',
+    output: {
+      name: 'SimpleStore',
+      file: pkg.browser,
+      format: 'umd',
+      globals: {
+        react: 'React',
+      },
+      exports: 'named',
+    },
+    plugins: [
+      resolve({
+        mainFields: ['module', 'main', 'browser'],
+        dedupe: ['react'],
+      }),
+      babel({
+        exclude: 'node_modules/**',
+        presets: [
+          [
+            '@babel/preset-env',
+            { targets: { browsers: 'last 2 versions, > 5%' } },
+          ],
+          '@babel/preset-react',
+        ],
+      }),
+      commonjs(),
+    ],
+    external: ['react'],
+  },
+];

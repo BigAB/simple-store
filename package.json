@@ -1,0 +1,67 @@
+{
+  "name": "@bigab/simple-store",
+  "version": "0.0.1",
+  "description": "A library for creating simple stores to be used in front-end web applications",
+  "main": "dist/simple-store.cjs.js",
+  "module": "dist/simple-store.esm.js",
+  "browser": "dist/simple-store.umd.js",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "start": "run-p build:watch test:watch",
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "test": "jest tests/simple-store.test.js --coverage",
+    "test:watch": "jest tests/simple-store.test.js --watch",
+    "pretest": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BigAB/simple-store.git"
+  },
+  "keywords": [],
+  "author": "BigAB <bigab@live.ca> (http://bigab.net)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BigAB/simple-store/issues"
+  },
+  "homepage": "https://github.com/BigAB/simple-store#readme",
+  "dependencies": {
+    "rxjs": "^6.5.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.2",
+    "eslint-plugin-react-hooks": "^1.6.1",
+    "husky": "^3.0.0",
+    "jest": "^24.8.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-hooks-testing-library": "^0.6.0",
+    "react-test-renderer": "^16.8.6",
+    "rollup": "^1.16.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "jsxSingleQuote": true,
+    "singleQuote": true
+  }
+}
