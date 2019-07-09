@@ -1,3 +1,2 @@
-export function hello() {
-  return 'Hello World!';
-}
+export * from './simple-store';
+export * from './react';

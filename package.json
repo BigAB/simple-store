@@ -12,6 +12,7 @@
     "build:watch": "rollup -c -w",
     "test": "jest tests/simple-store.test.js --coverage",
     "test:watch": "jest tests/simple-store.test.js --watch",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "pretest": "npm run build"
   },
   "repository": {
@@ -28,10 +29,14 @@
   "dependencies": {
     "rxjs": "^6.5.2"
   },
+  "optionalDependencies": {
+    "react": "^16.8.6"
+  },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
     "@babel/preset-react": "^7.0.0",
+    "babel-jest": "^24.8.0",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
@@ -46,7 +51,7 @@
     "react-dom": "^16.8.6",
     "react-hooks-testing-library": "^0.6.0",
     "react-test-renderer": "^16.8.6",
-    "rollup": "^1.16.4",
+    "rollup": "^1.16.7",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-node-resolve": "^5.2.0"
@@ -63,5 +68,14 @@
     "trailingComma": "es5",
     "jsxSingleQuote": true,
     "singleQuote": true
-  }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/*.js",
+      "!src/index.js"
+    ]
+  },
+  "browserslist": [
+    "last 2 versions and >5%"
+  ]
 }

@@ -16,15 +16,10 @@ export default [
         mainFields: ['module', 'main', 'browser'],
         dedupe: ['react'],
       }),
+      commonjs(),
       babel({
         exclude: 'node_modules/**',
-        presets: [
-          [
-            '@babel/preset-env',
-            { targets: { browsers: `last 2 versions, > 5%` } },
-          ],
-          '@babel/preset-react',
-        ],
+        presets: ['@babel/preset-env', '@babel/preset-react'],
       }),
     ],
   },
@@ -47,13 +42,7 @@ export default [
       }),
       babel({
         exclude: 'node_modules/**',
-        presets: [
-          [
-            '@babel/preset-env',
-            { targets: { browsers: 'last 2 versions, > 5%' } },
-          ],
-          '@babel/preset-react',
-        ],
+        presets: ['@babel/preset-env', '@babel/preset-react'],
       }),
       commonjs(),
     ],
