@@ -32,31 +32,27 @@ export class SimpleStore {
     const deps$ = new BehaviorSubject({ ...defaultDeps, ...deps });
     const action$ = new Subject();
 
-    const distinctState$ = state$.pipe(distinctUntilChanged());
-    const distinctDeps$ = deps$.pipe(distinctUntilChanged());
-    const depsWithState$ = distinctDeps$.pipe(withLatestFrom(distinctState$));
-
-    const actionWithStateAndDeps$ = action$.pipe(
-      withLatestFrom(distinctState$),
-      withLatestFrom(distinctDeps$),
-      map(([[action, state], deps]) => {
-        return [state, action, deps];
-      })
-    );
-
-    const updates$ = merge(
-      actionWithStateAndDeps$,
-      depsWithState$.pipe(map(([deps, state]) => [state, undefined, deps]))
-    );
-
-    const derived$ = updates$.pipe(
+    const derived$ = merge(
+      action$.pipe(
+        // startWith(undefined),
+        withLatestFrom(state$),
+        withLatestFrom(deps$),
+        map(([[action, state], deps]) => {
+          return [state, action, deps];
+        })
+      ),
+      deps$.pipe(
+        withLatestFrom(state$),
+        map(([deps, state]) => [state, undefined, deps])
+      )
+    ).pipe(
       switchMap(args => {
-        //******* THE MAGIC HAPPENS HERE ***********/
         const resolves$ = new BehaviorSubject();
         const resolve = v => resolves$.next(v);
+        //******* THE MAGIC HAPPENS HERE ***********/
         const result = storeFn(...args, resolve);
-        const resolved = resolves$.getValue() ? resolves$.pipe(take(1)) : EMPTY;
         //******************************************/
+        const resolved = resolves$.getValue() ? resolves$.pipe(take(1)) : EMPTY;
         if (isPromise(result)) {
           // always emit undefined/resolved values when pending on promise
           return concat(resolved, result);
