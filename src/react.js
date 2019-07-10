@@ -15,18 +15,24 @@ export function createSimpleStoreHook(storeFn, options) {
   const context = createContext(new SimpleStore(storeFn, options.deps));
 
   const Provider = memo(({ children, ...props }) => {
-    const storeRef = useRef(
-      new SimpleStore(storeFn, { ...options.deps, ...props })
-    );
+    const storeRef = useRef();
+    if (!storeRef.current) {
+      storeRef.current = new SimpleStore(storeFn, {
+        ...options.deps,
+        ...props,
+      });
+    }
     useLayoutEffect(() => {
       storeRef.current.setDeps({ ...options.deps, ...props });
     }, [props]);
+
     return React.createElement(
       context.Provider,
       { value: storeRef.current },
       children
     );
   });
+  Provider.displayName = 'SimpleStoreProvider';
 
   const useSimpleStore = (localFilter, inputs = []) => {
     const store = useContext(context);
@@ -34,7 +40,10 @@ export function createSimpleStoreHook(storeFn, options) {
     const initialState = useMemo(() => {
       return filter ? filter(store.getState()) : store.getState();
     }, [filter, store]);
+
     const [state, setState] = useState(initialState);
+    const dispatch = useCallback(action => store.dispatch(action), [store]);
+
     const unsub = useMemo(() => {
       return store.subscribe(
         s => setState(s),
@@ -46,7 +55,8 @@ export function createSimpleStoreHook(storeFn, options) {
     }, [setState, filter, store]);
 
     useEffect(() => unsub, [unsub]);
-    return [state, store.dispatch];
+
+    return [state, dispatch];
   };
 
   return [useSimpleStore, Provider];
