@@ -7,6 +7,7 @@ import {
   isObservable,
   concat,
   noop,
+  EMPTY,
 } from 'rxjs';
 import {
   distinctUntilChanged,
@@ -14,6 +15,7 @@ import {
   map,
   switchMap,
   share,
+  take,
 } from 'rxjs/operators';
 import * as defaultDeps from './default-deps';
 import { isPromise } from './utils';
@@ -50,13 +52,16 @@ export class SimpleStore {
     const derived$ = updates$.pipe(
       switchMap(args => {
         //******* THE MAGIC HAPPENS HERE ***********/
-        const result = storeFn(...args);
+        const resolves$ = new BehaviorSubject();
+        const resolve = v => resolves$.next(v);
+        const result = storeFn(...args, resolve);
+        const resolved = resolves$.getValue() ? resolves$.pipe(take(1)) : EMPTY;
         //******************************************/
         if (isPromise(result)) {
-          // always emit undefined when pending on promise
-          return concat(of(undefined), result);
+          // always emit undefined/resolved values when pending on promise
+          return concat(resolved, result);
         }
-        return isObservable(result) ? result : of(result);
+        return concat(resolved, isObservable(result) ? result : of(result));
       }),
       share()
     );

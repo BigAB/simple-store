@@ -1,8 +1,7 @@
-import { of, isObservable, concat } from 'rxjs';
+import { of, concat } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { ajax as rxajax } from 'rxjs/ajax';
 import { fromFetch } from 'rxjs/fetch';
-import { isPromise } from './utils';
 
 export const fetch = (request, init) => {
   return concat(of(undefined), fromFetch(request, init));
@@ -36,10 +35,4 @@ export const fetchJSON = (request, init) => {
       })
     )
   );
-};
-
-export const resolve = (...args) => {
-  const makeObserables = arg =>
-    isPromise(arg) || isObservable(arg) ? arg : of(arg);
-  return concat(...args.map(makeObserables));
 };

@@ -1,6 +1,7 @@
 import { createSimpleStore } from '../src/index';
 import * as defaultDeps from '../src/default-deps';
 import { from } from 'rxjs';
+import { defer } from '../src/utils';
 
 describe('SimpleStore', () => {
   describe('createSimpleStore', () => {
@@ -223,18 +224,36 @@ describe('SimpleStore', () => {
       expect(callback.mock.calls).toEqual([[{}], [1], [2], [3]]);
     });
 
-    xtest('resolve()', done => {
+    test('resolve()', async done => {
+      const deferred = defer();
       const store = createSimpleStore((state, action, deps, resolve) => {
         resolve(1);
-        return Promise.resolve(2);
+        return deferred;
       });
-      let count = 0;
-      store.subscribe(state => {
-        expect(state).toBe(count++);
-        if (count === 2) {
-          done();
-        }
-      }, done);
+      const callback = jest.fn();
+      store.subscribe(callback, done);
+      expect(callback.mock.calls).toEqual([[1]]);
+      deferred.resolve(2);
+      await deferred;
+      expect(callback.mock.calls).toEqual([[1], [2]]);
+      done();
+    });
+
+    test(`resolve() can be called multiple times, but only the last call get's emitted as state`, async done => {
+      const deferred = defer();
+      const store = createSimpleStore((state, action, deps, resolve) => {
+        resolve(1);
+        resolve(2);
+        resolve(3);
+        return deferred;
+      });
+      const callback = jest.fn();
+      store.subscribe(callback, done);
+      expect(callback.mock.calls).toEqual([[3]]);
+      deferred.resolve({ foo: 'bar' });
+      await deferred;
+      expect(callback.mock.calls).toEqual([[3], [{ foo: 'bar' }]]);
+      done();
     });
   });
 });
