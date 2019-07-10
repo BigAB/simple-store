@@ -73,6 +73,23 @@ describe('SimpleStore', () => {
       expect(store.state).toBe(2);
     });
 
+    test('when actions are when the same state is returned, the next callback is not called', () => {
+      let count = 0;
+      const store = createSimpleStore((state = [], action) => {
+        if (action) {
+          count++;
+        }
+        return state;
+      });
+      const callback = jest.fn();
+      store.subscribe(callback);
+      store.dispatch('inc');
+      store.dispatch('inc');
+      store.dispatch('inc');
+      expect(callback.mock.calls.length).toBe(1);
+      expect(count).toBe(3);
+    });
+
     test('store should retain state, even if all subscribers unsubscribe', done => {
       const store = createSimpleStore((state = 0, action) => {
         if (action === 'inc') {
