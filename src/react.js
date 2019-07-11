@@ -11,7 +11,7 @@ import React, {
 } from 'react';
 import { SimpleStore } from './simple-store';
 
-export function createSimpleStoreHook(storeFn, options) {
+export function createSimpleStoreHook(storeFn, options = {}) {
   const context = createContext(new SimpleStore(storeFn, options.deps));
 
   const Provider = memo(({ children, ...props }) => {
@@ -38,7 +38,7 @@ export function createSimpleStoreHook(storeFn, options) {
     const store = useContext(context);
     const filter = useCallback(localFilter, inputs);
     const initialState = useMemo(() => {
-      return filter ? filter(store.getState()) : store.getState();
+      return filter ? filter(store.state) : store.state;
     }, [filter, store]);
 
     const [state, setState] = useState(initialState);
