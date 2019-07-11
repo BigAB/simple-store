@@ -28,7 +28,7 @@ export default [
     input: 'src/index.js',
     output: {
       name: 'SimpleStore',
-      file: pkg.browser,
+      file: 'dist/umd/simple-store.js',
       format: 'umd',
       globals: {
         react: 'React',

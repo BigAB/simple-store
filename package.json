@@ -4,7 +4,6 @@
   "description": "A library for creating simple stores to be used in front-end web applications",
   "main": "dist/simple-store.cjs.js",
   "module": "dist/simple-store.esm.js",
-  "browser": "dist/simple-store.umd.js",
   "scripts": {
     "prepublishOnly": "npm run build",
     "start": "run-p build:watch test:watch",
@@ -29,7 +28,7 @@
   "dependencies": {
     "rxjs": "^6.5.2"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "react": "^16.8.6"
   },
   "devDependencies": {
