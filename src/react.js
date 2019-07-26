@@ -42,7 +42,7 @@ export function createSimpleStoreHook(storeFn, options = {}) {
     const dispatch = useCallback(action => store.dispatch(action), [store]);
 
     useEffect(() => {
-      return store
+      const subscription = store
         .pipe(
           map(selector),
           distinctUntilChanged()
@@ -56,6 +56,9 @@ export function createSimpleStoreHook(storeFn, options = {}) {
             throw Error('Store observables should not complete');
           }
         );
+      return () => {
+        subscription();
+      };
     }, [setState, mapWithSelector, store]);
 
     return [state, dispatch];
