@@ -25,10 +25,8 @@
     "url": "https://github.com/BigAB/simple-store/issues"
   },
   "homepage": "https://github.com/BigAB/simple-store#readme",
-  "dependencies": {
-    "rxjs": "^6.5.2"
-  },
   "peerDependencies": {
+    "rxjs": "^6.5.2",
     "react": "^16.8.6"
   },
   "devDependencies": {
@@ -53,7 +51,8 @@
     "rollup": "^1.17.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.1",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rxjs": "^6.5.2"
   },
   "files": [
     "dist"
