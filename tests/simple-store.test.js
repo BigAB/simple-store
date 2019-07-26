@@ -1,6 +1,7 @@
 import { createSimpleStore } from '../src/index';
 import * as defaultDeps from '../src/default-deps';
 import { from } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 import { defer } from '../src/utils';
 
 describe('SimpleStore', () => {
@@ -49,6 +50,27 @@ describe('SimpleStore', () => {
         }
       }, done);
       expect(store.state).toBeUndefined();
+    });
+
+    test('calling resolve() in an async storeFn should emit resolved then the promise value', done => {
+      const storeFn = async (state, action, deps, resolve) => {
+        resolve([1]);
+        return [2];
+      };
+      const store = createSimpleStore(storeFn);
+      let first = true;
+      store.subscribe(state => {
+        if (first) {
+          expect(state).toEqual([1]);
+          first = false;
+        } else {
+          expect(state).toEqual([2]);
+          done();
+        }
+      }, done);
+      // TODO: use callback.mock.calls
+      // resolve, resolves synchronously
+      expect(store.state).toEqual([1]);
     });
 
     test('when actions are dispatched, use storeFn to define new state', done => {
@@ -147,6 +169,7 @@ describe('SimpleStore', () => {
       const subscription = store.subscribe(state => {
         expect(state).toBe(count++);
       });
+
       expect(store.state).toBe(0);
       store.dispatch('inc');
       expect(store.state).toBe(1);
@@ -181,7 +204,7 @@ describe('SimpleStore', () => {
       store.setDeps({ foo: 'bar' });
     });
 
-    test('passing a filter function argument to subscribe will only run the next callback when that filtered state is updates', () => {
+    test('store implements an RxJS observable interface, so calling .pipe() and passing rxjs operators works as expected', () => {
       const store = createSimpleStore((state = {}, action) => {
         if (action) {
           return {
@@ -192,19 +215,19 @@ describe('SimpleStore', () => {
         return state;
       });
       const callback = jest.fn();
-      store.subscribe(
-        callback,
-        err => {
+      store
+        .pipe(
+          map(state => state.A),
+          distinctUntilChanged()
+        )
+        .subscribe(callback, err => {
           throw err;
-        },
-        state => state.A
-      );
+        });
       store.dispatch('B');
       store.dispatch('A');
       store.dispatch('B');
       store.dispatch('A');
       store.dispatch('B');
-      expect(callback.mock.calls).toEqual([[undefined], [0], [1]]);
     });
 
     test('if storeFn return an RxJS observable, follow that observable for state', async () => {

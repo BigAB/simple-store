@@ -2,7 +2,6 @@ import React, {
   useState,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useCallback,
   useContext,
   createContext,
@@ -10,6 +9,7 @@ import React, {
   memo,
 } from 'react';
 import { SimpleStore } from './simple-store';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 export function createSimpleStoreHook(storeFn, options = {}) {
   const context = createContext(new SimpleStore(storeFn, options.deps));
@@ -34,30 +34,34 @@ export function createSimpleStoreHook(storeFn, options = {}) {
   });
   Provider.displayName = 'SimpleStoreProvider';
 
-  const useSimpleStore = (localFilter, inputs = []) => {
+  const useSimpleStore = (selector = ident, inputs = []) => {
     const store = useContext(context);
-    const filter = useCallback(localFilter, inputs);
-    const initialState = useMemo(() => {
-      return filter ? filter(store.state) : store.state;
-    }, [filter, store]);
+    const mapWithSelector = useCallback(selector, inputs);
 
-    const [state, setState] = useState(initialState);
+    const [state, setState] = useState();
     const dispatch = useCallback(action => store.dispatch(action), [store]);
 
-    const unsub = useMemo(() => {
-      return store.subscribe(
-        s => setState(s),
-        e => {
-          throw e;
-        },
-        filter
-      );
-    }, [setState, filter, store]);
-
-    useEffect(() => unsub, [unsub]);
+    useEffect(() => {
+      return store
+        .pipe(
+          map(selector),
+          distinctUntilChanged()
+        )
+        .subscribe(
+          state => setState(state),
+          error => {
+            throw error;
+          },
+          () => {
+            throw Error('Store observables should not complete');
+          }
+        );
+    }, [setState, mapWithSelector, store]);
 
     return [state, dispatch];
   };
 
   return [useSimpleStore, Provider];
 }
+
+const ident = x => x;

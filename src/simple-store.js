@@ -2,11 +2,8 @@ import {
   of,
   BehaviorSubject,
   Subject,
-  merge,
-  identity,
   isObservable,
   concat,
-  noop,
   EMPTY,
 } from 'rxjs';
 import {
@@ -16,96 +13,88 @@ import {
   switchMap,
   share,
   take,
+  startWith,
+  tap,
 } from 'rxjs/operators';
 import * as defaultDeps from './default-deps';
 import { isPromise } from './utils';
 
-const ACTION$ = Symbol('action$');
-const STATE$ = Symbol('state$');
-const DERIVED$ = Symbol();
-const DEPS$ = Symbol();
-const DEPS_SUB = Symbol();
+export function SimpleStore(storeFn, deps) {
+  const state$ = new BehaviorSubject();
+  const deps$ = new BehaviorSubject({ ...defaultDeps, ...deps });
+  const action$ = new Subject();
 
-export class SimpleStore {
-  constructor(storeFn, deps) {
-    const state$ = new BehaviorSubject();
-    const deps$ = new BehaviorSubject({ ...defaultDeps, ...deps });
-    const action$ = new Subject();
-
-    const derived$ = merge(
-      action$.pipe(
-        // startWith(undefined),
-        withLatestFrom(state$),
-        withLatestFrom(deps$),
-        map(([[action, state], deps]) => {
-          return [state, action, deps];
-        })
-      ),
-      deps$.pipe(
-        withLatestFrom(state$),
-        map(([deps, state]) => [state, undefined, deps])
-      )
-    ).pipe(
-      switchMap(args => {
-        const resolves$ = new BehaviorSubject();
-        const resolve = v => resolves$.next(v);
-        //******* THE MAGIC HAPPENS HERE ***********/
-        const result = storeFn(...args, resolve);
-        //******************************************/
-        const resolved = resolves$.getValue() ? resolves$.pipe(take(1)) : EMPTY;
-        if (isPromise(result)) {
+  const store$ = action$.pipe(startWith(undefined)).pipe(
+    withLatestFrom(state$.pipe(distinctUntilChanged())),
+    withLatestFrom(deps$),
+    map(([[action, state], deps]) => [state, action, deps]),
+    switchMap(([state, action, deps]) => {
+      const resolves$ = new BehaviorSubject();
+      const resolve = v => resolves$.next(v);
+      //******* THE MAGIC HAPPENS HERE ***********/
+      const result = storeFn(state, action, deps, resolve);
+      //******************************************/
+      // an observable of the last call made to resolve in the storeFn or EMPTY
+      const resolved$ =
+        resolves$.getValue() === undefined ? EMPTY : resolves$.pipe(take(1));
+      if (isPromise(result)) {
+        return concat(
           // always emit undefined/resolved values when pending on promise
-          return concat(resolved, result);
-        }
-        return concat(resolved, isObservable(result) ? result : of(result));
-      }),
-      share()
-    );
+          resolved$ === EMPTY ? of(undefined) : resolved$,
+          result
+        );
+      }
+      // always turn result into an observable, so that array results
+      // don't get each item emitted separately
+      const result$ = isObservable(result) ? result : of(result);
+      // if there were no resolve calls, concat empty for no emit
+      return concat(resolved$, result$);
+    }),
+    tap(state => state$.next(state)),
+    distinctUntilChanged(),
+    share()
+  );
 
-    Object.defineProperties(this, {
-      [STATE$]: { value: state$, configurable: true },
-      [ACTION$]: { value: action$, configurable: true },
-      [DERIVED$]: { value: derived$, configurable: true },
-      [DEPS$]: { value: deps$, configurable: true },
-      // TODO: is there a problem holding on to the deps subscription like this
-      [DEPS_SUB]: { value: deps$.subscribe(noop), configurable: true },
-    });
-  }
-  get state() {
-    return this[STATE$].getValue();
-  }
-  set state(newState) {
-    this[STATE$].next(newState);
-  }
-  subscribe(next, error, filter) {
-    // stores never complete
-    // TODO: handle error in a non-completing way
-    const subscription = this[DERIVED$].subscribe(this[STATE$]);
-    const stateSliceSub = this[STATE$].pipe(
-      filter ? map(filter) : identity,
-      distinctUntilChanged()
-    ).subscribe(next, error);
-
-    // for svelte
-    const unsub = () => {
-      subscription.unsubscribe();
-      stateSliceSub.unsubscribe();
-    };
-    // or RxJS / ECMAScript
-    unsub.unsubscribe = () => {
-      subscription.unsubscribe();
-      stateSliceSub.unsubscribe();
-    };
-    return unsub;
-  }
-  dispatch(action) {
-    this[ACTION$].next(action);
-  }
-  setDeps(deps) {
-    this[DEPS$].next({ ...defaultDeps, ...deps });
-  }
+  return Object.create(store$, {
+    state: {
+      get() {
+        return state$.getValue();
+      },
+      set(state) {
+        return state$.next(state);
+      },
+      configurable: true,
+      enumerable: true,
+    },
+    dispatch: {
+      value: function dispatch(action) {
+        action$.next(action);
+      },
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    },
+    setDeps: {
+      value() {
+        deps$.next({ ...defaultDeps, ...deps });
+      },
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    },
+    subscribe: {
+      value: function subscribe(...args) {
+        // handle both styles of unsub
+        const sub = store$.subscribe(...args);
+        const subscription = () => sub.unsubscribe();
+        subscription.unsubscribe = subscription;
+        return subscription;
+      },
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    },
+  });
 }
 
-export const createSimpleStore = (storeFn, deps) => {
-  return new SimpleStore(storeFn, deps);
-};
+export { SimpleStore as createSimpleStore };
