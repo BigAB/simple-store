@@ -278,5 +278,27 @@ describe('SimpleStore', () => {
       expect(callback.mock.calls).toEqual([[3], [{ foo: 'bar' }]]);
       done();
     });
+
+    test('if you call dispatch with more than one argument, the storeFn receives an array for the action argument', () => {
+      const storeFn = jest.fn((state = {}) => {
+        return state;
+      });
+      const store = createSimpleStore(storeFn);
+      const unsub = store.subscribe(() => {});
+
+      store.dispatch('one');
+      store.dispatch('one', 'two');
+      store.dispatch('one', ['three', 'four']);
+
+      unsub();
+
+      const actionArguments = storeFn.mock.calls.map(([, action]) => action);
+      expect(actionArguments).toEqual([
+        undefined,
+        'one',
+        ['one', 'two'],
+        ['one', ['three', 'four']],
+      ]);
+    });
   });
 });

@@ -67,8 +67,8 @@ export function SimpleStore(storeFn, deps) {
       enumerable: true,
     },
     dispatch: {
-      value: function dispatch(action) {
-        action$.next(action);
+      value: function dispatch(...args) {
+        action$.next(args.length > 1 ? args : args[0]);
       },
       writable: true,
       configurable: true,
