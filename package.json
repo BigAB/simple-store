@@ -1,6 +1,6 @@
 {
   "name": "@bigab/simple-store",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A library for creating simple stores to be used in front-end web applications",
   "main": "dist/simple-store.cjs.js",
   "module": "dist/simple-store.esm.js",
