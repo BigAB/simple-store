@@ -32,6 +32,8 @@ export default [
       format: 'umd',
       globals: {
         react: 'React',
+        rxjs: 'rxjs',
+        'rxjs/operators': 'rxjs.operators',
       },
       exports: 'named',
     },
@@ -46,6 +48,6 @@ export default [
       }),
       commonjs(),
     ],
-    external: ['react'],
+    external: ['react', 'rxjs', 'rxjs/operators'],
   },
 ];
