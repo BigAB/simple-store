@@ -8,16 +8,16 @@ import React, {
   useRef,
   memo,
 } from 'react';
-import { SimpleStore } from './simple-store';
+import { createSimpleStore } from './simple-store';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
 export function createSimpleStoreHook(storeFn, options = {}) {
-  const context = createContext(new SimpleStore(storeFn, options.deps));
+  const context = createContext(createSimpleStore(storeFn, options.deps));
 
   const Provider = memo(({ children, ...props }) => {
     const storeRef = useRef();
     if (!storeRef.current) {
-      storeRef.current = new SimpleStore(storeFn, {
+      storeRef.current = createSimpleStore(storeFn, {
         ...options.deps,
         ...props,
       });
@@ -64,7 +64,9 @@ export function createSimpleStoreHook(storeFn, options = {}) {
     return [state, dispatch];
   };
 
-  return [useSimpleStore, Provider];
+  useSimpleStore.Provider = Provider;
+
+  return useSimpleStore;
 }
 
 const ident = x => x;
