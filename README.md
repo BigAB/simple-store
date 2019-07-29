@@ -10,7 +10,7 @@ This library let's you create a flux-like store out of just a function, and use 
 
 ## Code Example
 
-#### Create a store
+### Create a store
 
 ```js
 import { createSimpleStoreHook } from '@bigab/simple-store';
@@ -45,18 +45,19 @@ const store = createSimpleStoreHook(async (state, action, deps, resolve) => {
     return { things, loading: false, category };
   }
 
-  // by default, jsut return the same state and nothing happens
+  // by default, just return the same state and nothing happens
   return state;
 });
 ```
 
-## create a store hook for `React`
+### Create a store hook for `React`
 
 ```jsx
 import { createSimpleStoreHook } from '@bigab/simple-store/react';
 
 // this could likely be in another file
-const useThings = createSimpleStoreHook(thingsStoreFn); // see example above
+// thingsStoreFn is the storeFn from example above
+const useThings = createSimpleStoreHook(thingsStoreFn);
 
 const ThingList = ({ category }) => {
   // hook returns [state, dispatch] tuple, just like useReducer
@@ -72,7 +73,7 @@ const ThingList = ({ category }) => {
           key={thing.id}
           thing={thing}
           onSelectCategory={() => {
-            dispatch(createCategoryFilterAction(category));
+            dispatch({ type: 'filter', payload: { category } });
           }}
         />
       ))}
@@ -81,10 +82,10 @@ const ThingList = ({ category }) => {
 };
 ```
 
-## use your store in a `Svelte` component
+### Use your store in a `Svelte` component
 
 ```js
-// coming soon
+// example coming soon, but just swap out a Svelte store
 ```
 
 ## Installation
