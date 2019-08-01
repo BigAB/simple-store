@@ -13,7 +13,7 @@ This library let's you create a flux-like store out of just a function, and use 
 ### Create a store
 
 ```js
-import { createSimpleStoreHook } from '@bigab/simple-store';
+import { createSimpleStoreHook } from 'simple-store';
 
 const store = createSimpleStoreHook(async (state, action, deps, resolve) => {
   // if the store is being subscribed to, or the action is 'reset'
@@ -53,7 +53,7 @@ const store = createSimpleStoreHook(async (state, action, deps, resolve) => {
 ### Create a store hook for `React`
 
 ```jsx
-import { createSimpleStoreHook } from '@bigab/simple-store/react';
+import { createSimpleStoreHook } from 'simple-store/react';
 
 // this could likely be in another file
 // thingsStoreFn is the storeFn from example above
@@ -90,18 +90,18 @@ const ThingList = ({ category }) => {
 
 ## Installation
 
-`@bigab/simple-store` requires `rxjs` as a **peer dependency**.
+`simple-store` requires `rxjs` as a **peer dependency**.
 
 ```sh
-npm install @bigab/simple-store rxjs
+npm install simple-store rxjs
 ```
 
 ```sh
-yarn add @bigab/simple-store rxjs
+yarn add simple-store rxjs
 ```
 
-Also, if you are importing from `@bigab/simple-store/react` you will require a **peer dependency** of `react`.
-And of course if you are importing from `@bigab/simple-store/svelte` you will require a **peer dependency** of `svelte`.
+Also, if you are importing from `simple-store/react` you will require a **peer dependency** of `react`.
+And of course if you are importing from `simple-store/svelte` you will require a **peer dependency** of `svelte`.
 
 ## Features
 
