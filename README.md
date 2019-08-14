@@ -15,7 +15,7 @@ This library let's you create a flux-like store out of just a function, and use 
 ```js
 import { createSimpleStoreHook } from 'simple-store';
 
-const store = createSimpleStoreHook(async (state, action, deps, resolve) => {
+const store = createSimpleStore(async (state, action, deps, resolve) => {
   // if the store is being subscribed to, or the action is 'reset'
   if ((!state && !action) || action.type === 'reset') {
     // early sync resolve so you can show a spinner or something
