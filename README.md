@@ -13,7 +13,7 @@ This library let's you create a flux-like store out of just a function, and use 
 ### Create a store
 
 ```js
-import { createSimpleStoreHook } from 'simple-store';
+import { createSimpleStore } from 'simple-store';
 
 const store = createSimpleStore(async (state, action, deps, resolve) => {
   // if the store is being subscribed to, or the action is 'reset'
