@@ -6,7 +6,7 @@ Sometimes, you just need a simple store.
 
 This library let's you create a flux-like store out of just a function, and use that store in your React or Svelte apps.
 
-[![Build Status](https://travis-ci.com/BigAB/simple-store.svg?branch=master)](https://travis-ci.com/BigAB/simple-store)
+[![Build Status](https://travis-ci.com/BigAB/simple-store.svg?branch=master)](https://travis-ci.com/BigAB/simple-store) [![Greenkeeper badge](https://badges.greenkeeper.io/BigAB/simple-store.svg)](https://greenkeeper.io/)
 
 ## Code Example
 
