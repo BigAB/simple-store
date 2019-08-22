@@ -1,4 +1,4 @@
-# Simple-Store
+# :dizzy: Simple-Store
 
 Sometimes, you just need a simple store.
 
@@ -88,7 +88,7 @@ const ThingList = ({ category }) => {
 // example coming soon, but just swap out a Svelte store
 ```
 
-## Installation
+## ⚙️ Installation
 
 `simple-store` requires `rxjs` as a **peer dependency**.
 
@@ -103,13 +103,13 @@ yarn add simple-store rxjs
 Also, if you are importing from `simple-store/react` you will require a **peer dependency** of `react`.
 And of course if you are importing from `simple-store/svelte` you will require a **peer dependency** of `svelte`.
 
-## Features
+## :star: Features
 
 - create a flux store from a simple function
 - async by default
 - framework agnostic
 
-## API Reference
+## :bookmark_tabs:API Reference
 
 #### `createSimpleStore(storeFn, deps) => store`
 
@@ -151,14 +151,14 @@ npm test
 
 ...to get an idea of what is being tested and the general idea of code coverage.
 
-## Built with
+## :hammer_and_pick: Built with
 
 - [RxJS](https://rxjs.dev/)
 - ❤️
 
-## Contribute
+## :seedling: Contribute
 
-Let people know how they can contribute into your project. A [contributing guideline](./CONTRIBUTING.md) will be a big plus.
+Think you'd like to contribute to this project? Check out our [contributing guideline](./CONTRIBUTING.md) and feel free to create issues and pull requests!
 
 ## License
 
